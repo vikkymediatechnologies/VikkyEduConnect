@@ -1,79 +1,96 @@
-import { ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+// src/components/layout/DashboardLayout.tsx
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import DashboardHeader from "@/components/ui/DashboardHeader";
+import DashboardSidebar from "@/components/ui/DashboardSidebar";
 
 interface DashboardLayoutProps {
-  children: ReactNode;
-  role: "school" | "teacher" | "student";
+  children: React.ReactNode;
 }
 
-const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const navLinks = {
-    school: [
-      { name: "Overview", path: "/dashboard/school" },
-      { name: "Teachers", path: "/dashboard/school/teachers" },
-      { name: "Students", path: "/dashboard/school/students" },
-      { name: "Settings", path: "/dashboard/school/settings" },
-    ],
-    teacher: [
-      { name: "My Classes", path: "/dashboard/teacher" },
-      { name: "Assignments", path: "/dashboard/teacher/assignments" },
-      { name: "Progress", path: "/dashboard/teacher/progress" },
-      { name: "Settings", path: "/dashboard/teacher/settings" },
-    ],
-    student: [
-      { name: "My Courses", path: "/dashboard/student" },
-      { name: "Progress", path: "/dashboard/student/progress" },
-      { name: "Assignments", path: "/dashboard/student/assignments" },
-      { name: "Settings", path: "/dashboard/student/settings" },
-    ],
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("role");
     navigate("/signin");
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* ✅ Sidebar */}
-      <motion.aside
-        initial={{ x: -80, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        className="w-64 bg-white border-r p-4 flex flex-col"
-      >
-        <h2 className="text-2xl font-bold text-blue-600 mb-6">EduConnect</h2>
-        <nav className="flex-1 space-y-3">
-          {navLinks[role].map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className="block py-2 px-3 rounded-md hover:bg-blue-100 text-gray-700 font-medium"
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
-        <Button onClick={handleLogout} variant="destructive">
-          Logout
-        </Button>
-      </motion.aside>
+    <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden">
+      {/* ===== SIDEBAR ===== */}
+      <AnimatePresence>
+        {(isSidebarOpen || window.innerWidth >= 768) && (
+          <motion.aside
+            key="sidebar"
+            initial={{ x: -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -300, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="fixed md:static top-0 left-0 z-40 h-full w-64 bg-white/90 backdrop-blur-xl border-r border-gray-200 shadow-lg md:shadow-none flex flex-col"
+          >
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h1 className="font-bold text-lg text-primary">
+                VikkyEduConnect
+              </h1>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-      {/* ✅ Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Topbar */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-          <h1 className="text-lg font-semibold capitalize">
-            {role} Dashboard
-          </h1>
+            <div className="flex-1 overflow-y-auto">
+              <DashboardSidebar />
+            </div>
+
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full text-left text-sm font-medium text-red-600 hover:bg-red-50 px-3 py-2 rounded-md transition"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* ===== MAIN CONTENT AREA ===== */}
+      <div className="flex-1 flex flex-col h-full">
+        {/* HEADER */}
+        <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button
+              className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <Menu size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-primary">Dashboard</h2>
+          </div>
+          <DashboardHeader />
         </header>
 
-        {/* Page Content */}
-        <main className="p-6 flex-1">{children}</main>
+        {/* MAIN PAGE CONTENT */}
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          {children}
+        </main>
       </div>
+
+      {/* Overlay for mobile when sidebar is open */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm md:hidden z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 };
