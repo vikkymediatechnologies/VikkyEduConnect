@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 
 // ✅ Dashboards
 import SchoolDashboard from "./pages/dashboard/SchoolDashboard";
+
 import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 

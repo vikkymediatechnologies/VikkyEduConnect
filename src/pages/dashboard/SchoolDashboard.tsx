@@ -10,6 +10,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import DashboardLayout from "@/layouts/DashboardLayout";
+
+
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -195,3 +197,4 @@ const SchoolDashboard = () => {
 };
 
 export default SchoolDashboard;
+
