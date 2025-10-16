@@ -1,3 +1,4 @@
+// src/pages/auth/Signin.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,61 +6,67 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 const Signin = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "",
   });
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ✅ Validation
-    if (!form.email || !form.password || !form.role) {
-      toast.error("All fields are required, including role.");
+    if (!form.email || !form.password) {
+      toast.error("Please enter both email and password.");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      toast.error("Please enter a valid email address.");
+    // ✅ Get user from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      toast.error("No account found. Please sign up first.");
       return;
     }
 
-    if (form.password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
+    const user = JSON.parse(storedUser);
+
+    // ✅ Check email and password
+    if (user.email !== form.email || user.password !== form.password) {
+      toast.error("Invalid email or password.");
       return;
     }
 
+    toast.success("Login successful!");
     setLoading(true);
 
-    // ✅ Simulate login success
+    // ✅ Save role in localStorage for dashboard redirect
+    localStorage.setItem("role", user.role);
+
+    // ✅ Update AuthContext
+    await login(user.role);
+
     setTimeout(() => {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ email: form.email, role: form.role })
-      );
-
-      toast.success("Signed in successfully!");
-
-      // ✅ Redirect based on role
-      if (form.role === "school") navigate("/dashboard/school");
-      else if (form.role === "teacher") navigate("/dashboard/teacher");
-      else navigate("/dashboard/student");
-
+      if (user.role === "school" || user.role === "admin") {
+        navigate("/dashboard/school");
+      } else if (user.role === "teacher") {
+        navigate("/dashboard/teacher");
+      } else if (user.role === "student") {
+        navigate("/dashboard/student");
+      } else {
+        navigate("/");
+      }
       setLoading(false);
-    }, 1000);
+    }, 500);
   };
 
   const Header = () => (
@@ -77,7 +84,6 @@ const Signin = () => {
           VikkyEduConnect
         </span>
       </Link>
-
       <span className="text-sm md:text-base font-medium text-muted-foreground">
         Sign In
       </span>
@@ -183,24 +189,6 @@ const Signin = () => {
                   onChange={handleChange}
                   required
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="role" className="text-foreground">
-                  Select Role
-                </Label>
-                <select
-                  id="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="mt-1 w-full border border-border rounded-md p-2 bg-background text-foreground"
-                  required
-                >
-                  <option value="">-- Choose Role --</option>
-                  <option value="school">School</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="student">Student</option>
-                </select>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

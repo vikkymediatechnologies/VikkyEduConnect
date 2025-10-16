@@ -46,12 +46,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
             className={`fixed md:static top-0 left-0 z-40 h-full ${
               isCollapsed ? "w-20" : "w-64"
-            } bg-white/90 dark:bg-darkCard/90 backdrop-blur-xl border-r border-gray-200 dark:border-gray-700 shadow-lg md:shadow-none flex flex-col transition-all duration-300`}
+            } bg-white/90 dark:bg-[#1e293b]/90 backdrop-blur-xl border-r border-gray-200 dark:border-gray-700 shadow-lg md:shadow-none flex flex-col transition-all duration-300`}
           >
             {/* HEADER */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               {!isCollapsed && (
-                <h1 className="font-bold text-lg text-primary whitespace-nowrap">
+                <h1 className="font-bold text-lg text-primary dark:text-blue-400 whitespace-nowrap">
                   VikkyEduConnect
                 </h1>
               )}
@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={handleLogout}
-                className={`flex items-center gap-2 w-full text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 px-3 py-2 rounded-md transition ${
+                className={`flex items-center gap-2 w-full text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-[#334155] px-3 py-2 rounded-md transition ${
                   isCollapsed ? "justify-center" : ""
                 }`}
               >
@@ -103,7 +103,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* ===== MAIN CONTENT AREA ===== */}
       <div className="flex-1 flex flex-col h-full">
         {/* HEADER */}
-        <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-darkCard border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-colors duration-300">
+        <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1e293b] border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-colors duration-300">
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
@@ -121,7 +121,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </header>
 
         {/* MAIN PAGE CONTENT */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-darkBg transition-colors duration-300">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-[#0f172a] transition-colors duration-300">
           {children}
         </main>
       </div>

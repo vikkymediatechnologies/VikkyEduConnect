@@ -1,3 +1,4 @@
+// src/components/ui/DashboardSidebar.tsx
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
@@ -26,7 +27,10 @@ const DashboardSidebar = ({ collapsed = false }: SidebarProps) => {
   ];
 
   return (
-    <nav className="flex flex-col gap-1 px-3 py-5 text-sm">
+    <nav
+      className={`flex flex-col gap-1 px-3 py-5 text-sm transition-colors duration-300 
+      bg-white/90 dark:bg-[#1e293b]/95 backdrop-blur-xl`}
+    >
       {navItems.map((item) => {
         const isActive = location.pathname === item.path;
         return (
@@ -35,14 +39,21 @@ const DashboardSidebar = ({ collapsed = false }: SidebarProps) => {
               to={item.path}
               className={`flex items-center ${
                 collapsed ? "justify-center" : "gap-3 px-4"
-              } py-2.5 rounded-lg font-medium transition-all duration-200 ${
+              } py-2.5 rounded-lg font-medium transition-all duration-300
+              ${
                 isActive
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-gray-700 dark:text-darkText hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-blue-400"
+                  ? "bg-blue-600 text-white shadow-md dark:bg-blue-500"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#334155] hover:text-blue-600"
               }`}
               title={collapsed ? item.name : ""}
             >
-              <span>{item.icon}</span>
+              <span
+                className={`transition-transform duration-200 ${
+                  isActive ? "text-white" : "text-gray-500 dark:text-gray-400"
+                }`}
+              >
+                {item.icon}
+              </span>
               {!collapsed && <span>{item.name}</span>}
             </Link>
           </motion.div>

@@ -1,14 +1,12 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
-export default {
+const config: Config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
+    "./index.html",               // ✅ include main HTML
+    "./src/**/*.{js,ts,jsx,tsx}", // ✅ scans everything in src/
   ],
-  prefix: "",
   theme: {
     container: {
       center: true,
@@ -26,17 +24,23 @@ export default {
         foreground: "hsl(var(--foreground))",
 
         primary: {
-          DEFAULT: "#2563eb", // nice blue tone
+          DEFAULT: "#2563eb",
           foreground: "#ffffff",
         },
         secondary: {
           DEFAULT: "#3b82f6",
           foreground: "#f8fafc",
         },
-        darkBg: "#0f172a", // dark navy
-        darkCard: "#1e293b", // softer dark
-        darkText: "#e2e8f0", // light gray text
 
+        // 🌙 Dark Mode Palette
+        darkBg: "#0f172a",
+        darkCard: "#1e293b",
+        darkBorder: "#334155",
+        darkText: "#e2e8f0",
+        darkMuted: "#94a3b8",
+        darkAccent: "#3b82f6",
+
+        // UI groups
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -88,5 +92,7 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+  plugins: [animate], // ✅ fixed plugin import
+};
+
+export default config;

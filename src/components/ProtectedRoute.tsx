@@ -1,24 +1,28 @@
+// src/components/PrivateRoute.tsx
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
-  allowedRoles?: string[]; // e.g. ["admin", "teacher"]
+  allowedRoles?: string[];
 }
 
 const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
-  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
+  const { isAuthenticated, userRole } = useAuth();
 
-  // ⛔ If not logged in, send to signin page
+  // fallback for persistence
+  const savedRole = localStorage.getItem("userRole");
+  const role = userRole || savedRole;
+
+  // ⛔ Not logged in → go to signin
   if (!isAuthenticated) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
-  // 🧩 Role-based access control
-  if (allowedRoles && !allowedRoles.includes(user?.role || "")) {
-    // redirect them to their correct dashboard
-    switch (user?.role) {
+  // 🧩 Role-based restriction
+  if (allowedRoles && !allowedRoles.includes(role || "")) {
+    switch (role) {
       case "school":
       case "admin":
         return <Navigate to="/dashboard/school" replace />;
@@ -31,7 +35,7 @@ const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
     }
   }
 
-  // ✅ User is authenticated and authorized
+  // ✅ Authorized and logged in
   return <>{children}</>;
 };
 

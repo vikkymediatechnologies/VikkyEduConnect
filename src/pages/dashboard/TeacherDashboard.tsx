@@ -1,18 +1,12 @@
-import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
 const TeacherDashboard = () => {
   return (
-    <DashboardLayout role="teacher">
-      <Routes>
-        <Route
-          index
-          element={<h2 className="text-2xl font-bold">My Classes 📚</h2>}
-        />
-        <Route path="assignments" element={<p>Assignments Page ✏️</p>} />
-        <Route path="progress" element={<p>Progress Tracker 📈</p>} />
-        <Route path="settings" element={<p>Account Settings ⚙️</p>} />
-      </Routes>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-darkText">
+        👩‍🏫 Teacher Dashboard
+      </h1>
+      <p className="text-gray-600 mt-2">Welcome! Manage classes, students, and performance.</p>
     </DashboardLayout>
   );
 };

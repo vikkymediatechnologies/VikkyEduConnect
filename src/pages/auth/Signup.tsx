@@ -14,7 +14,7 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student", // ✅ default role
+    role: "student", // default
   });
 
   const handleChange = (
@@ -47,26 +47,42 @@ const Signup = () => {
       return;
     }
 
-    // ✅ Save user data locally (mock signup)
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: form.name,
-        email: form.email,
-        role: form.role,
-      })
-    );
+    // ✅ Get existing users
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
 
-    toast.success("Account created successfully!");
-    setTimeout(() => navigate("/signin"), 1200);
+    // ✅ Check if email already exists
+    const existingUser = users.find((u: any) => u.email === form.email);
+    if (existingUser) {
+      toast.error("An account with this email already exists.");
+      return;
+    }
+
+    // ✅ Save new user with all details (including password & role)
+    const newUser = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      role: form.role,
+    };
+    users.push(newUser);
+localStorage.setItem(
+  "user",
+  JSON.stringify({
+    name: form.name,
+    email: form.email,
+    password: form.password, // ✅ added
+    role: form.role,
+  })
+);
+
+
+    toast.success("Account created successfully! Redirecting to login...");
+    setTimeout(() => navigate("/signin"), 1500);
   };
 
   const container: Variants = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
+    show: { opacity: 1, transition: { staggerChildren: 0.15 } },
   };
 
   const word: Variants = {
@@ -76,7 +92,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
-      {/* ✅ Header */}
+      {/* Header */}
       <header className="w-full flex justify-between items-center px-8 py-4 border-b border-border">
         <div className="flex items-center gap-2">
           <motion.img
@@ -97,7 +113,7 @@ const Signup = () => {
         </Link>
       </header>
 
-      {/* ✅ Main content */}
+      {/* Main content */}
       <div className="flex-grow flex items-center justify-center px-6 pt-10">
         <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Left */}
@@ -207,7 +223,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* ✅ Role Selection */}
               <div>
                 <Label htmlFor="role" className="text-foreground">
                   Select Role
@@ -221,6 +236,7 @@ const Signup = () => {
                   <option value="school">School</option>
                   <option value="teacher">Teacher</option>
                   <option value="student">Student</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 

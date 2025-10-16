@@ -1,200 +1,271 @@
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Users,
-  GraduationCap,
   BookOpen,
-  Settings,
-  TrendingUp,
-  ArrowRight,
+  CalendarCheck,
+  BarChart2,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-
-
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
+  YAxis,
   Tooltip,
+  ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import LogoutButton from "@/components/ui/LogoutButton"; // ✅ Added Logout Button
 
 const SchoolDashboard = () => {
-  const navigate = useNavigate();
-  const [stats, setStats] = useState([
-    { icon: <Users size={22} />, label: "Total Teachers", value: 0 },
-    { icon: <GraduationCap size={22} />, label: "Total Students", value: 0 },
-    { icon: <BookOpen size={22} />, label: "Active Courses", value: 0 },
-  ]);
+  const [activeTab, setActiveTab] = useState("attendance");
 
-  const [activities, setActivities] = useState<any[]>([]);
+  const stats = [
+    {
+      label: "Total Students",
+      value: "1,240",
+      change: "+8%",
+      icon: <Users size={22} />,
+      trend: "up",
+      color: "bg-blue-500",
+    },
+    {
+      label: "Teachers",
+      value: "68",
+      change: "+2%",
+      icon: <BookOpen size={22} />,
+      trend: "up",
+      color: "bg-green-500",
+    },
+    {
+      label: "Courses",
+      value: "42",
+      change: "0%",
+      icon: <BarChart2 size={22} />,
+      trend: "neutral",
+      color: "bg-yellow-500",
+    },
+    {
+      label: "Attendance Rate",
+      value: "96%",
+      change: "-1%",
+      icon: <CalendarCheck size={22} />,
+      trend: "down",
+      color: "bg-red-500",
+    },
+  ];
 
-  // Simulate fetching data from API
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setStats([
-        { icon: <Users size={22} />, label: "Total Teachers", value: 42 },
-        { icon: <GraduationCap size={22} />, label: "Total Students", value: 310 },
-        { icon: <BookOpen size={22} />, label: "Active Courses", value: 18 },
-      ]);
+  const dataSets: Record<string, { month: string; value: number }[]> = {
+    attendance: [
+      { month: "Jan", value: 88 },
+      { month: "Feb", value: 92 },
+      { month: "Mar", value: 94 },
+      { month: "Apr", value: 90 },
+      { month: "May", value: 95 },
+      { month: "Jun", value: 97 },
+      { month: "Jul", value: 93 },
+    ],
+    performance: [
+      { month: "Jan", value: 75 },
+      { month: "Feb", value: 78 },
+      { month: "Mar", value: 82 },
+      { month: "Apr", value: 79 },
+      { month: "May", value: 85 },
+      { month: "Jun", value: 87 },
+      { month: "Jul", value: 90 },
+    ],
+    enrollments: [
+      { month: "Jan", value: 150 },
+      { month: "Feb", value: 200 },
+      { month: "Mar", value: 220 },
+      { month: "Apr", value: 260 },
+      { month: "May", value: 280 },
+      { month: "Jun", value: 300 },
+      { month: "Jul", value: 340 },
+    ],
+  };
 
-      setActivities([
-        { id: 1, text: "New student added: John Doe", time: "2 mins ago" },
-        { id: 2, text: "Teacher Sarah updated Chemistry course", time: "10 mins ago" },
-        { id: 3, text: "New course created: Basic Programming", time: "25 mins ago" },
-      ]);
-    }, 1000);
+  const chartColors: Record<string, string> = {
+    attendance: "#3b82f6",
+    performance: "#22c55e",
+    enrollments: "#f59e0b",
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const chartData = [
-    { name: "Teachers", count: 42 },
-    { name: "Students", count: 310 },
-    { name: "Courses", count: 18 },
+  const tabs = [
+    { id: "attendance", label: "Attendance" },
+    { id: "performance", label: "Performance" },
+    { id: "enrollments", label: "Enrollments" },
   ];
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* ✅ Welcome Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-        >
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Welcome back, <span className="text-primary">Vikky High School</span> 🎓
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-darkText">
+              Dashboard Overview
             </h1>
-            <p className="text-muted-foreground">
-              Manage teachers, students, and courses efficiently.
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              A quick summary of school performance and activities
             </p>
           </div>
 
-          <Button
-            className="flex items-center gap-2"
-            onClick={() => navigate("/dashboard/settings")}
-          >
-            <Settings size={16} /> Settings
-          </Button>
-        </motion.div>
-
-        {/* ✅ Stats Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {stats.map((stat, i) => (
-            <Card
-              key={i}
-              className="hover:shadow-md transition-all duration-200 cursor-pointer"
-            >
-              <CardHeader className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  {stat.icon}
-                  {stat.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stat.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-
-        {/* ✅ Chart Section */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <TrendingUp size={18} className="text-primary" /> Analytics Overview
-            </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/dashboard/reports")}
-            >
-              View Report
-            </Button>
-          </div>
-
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <Tooltip />
-              <Bar dataKey="count" fill="#3b82f6" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* ✅ Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-md transition-all">
-            <h3 className="text-lg font-semibold mb-2">👩‍🏫 Manage Teachers</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Add or remove teachers and assign them to classes.
-            </p>
-            <Button variant="outline" onClick={() => navigate("/dashboard/teachers")}>
-              Go to Teachers <ArrowRight size={16} />
-            </Button>
-          </Card>
-
-          <Card className="p-6 hover:shadow-md transition-all">
-            <h3 className="text-lg font-semibold mb-2">🎒 Manage Students</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              View student profiles, attendance, and performance.
-            </p>
-            <Button variant="outline" onClick={() => navigate("/dashboard/students")}>
-              Go to Students <ArrowRight size={16} />
-            </Button>
-          </Card>
-
-          <Card className="p-6 hover:shadow-md transition-all">
-            <h3 className="text-lg font-semibold mb-2">📚 Manage Courses</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Create and manage subjects, schedules, and course materials.
-            </p>
-            <Button variant="outline" onClick={() => navigate("/dashboard/courses")}>
-              Go to Courses <ArrowRight size={16} />
-            </Button>
-          </Card>
+          {/* ✅ Logout Button */}
+          <LogoutButton />
         </div>
 
-        {/* ✅ Recent Activities */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-semibold">Recent Activities</h3>
-            <Button variant="ghost" size="sm">
-              View All
-            </Button>
-          </div>
+        {/* STATS GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-card-hover hover:shadow-glow transition-all border border-gray-100 dark:border-gray-700"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div
+                  className={`p-3 rounded-xl text-white ${stat.color} bg-opacity-90`}
+                >
+                  {stat.icon}
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-sm font-medium ${
+                    stat.trend === "up"
+                      ? "text-green-500"
+                      : stat.trend === "down"
+                      ? "text-red-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {stat.trend === "up" && <ArrowUpRight size={16} />}
+                  {stat.trend === "down" && <ArrowDownRight size={16} />}
+                  {stat.change}
+                </div>
+              </div>
+              <h3 className="text-gray-500 dark:text-gray-400 text-sm">
+                {stat.label}
+              </h3>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-darkText mt-1">
+                {stat.value}
+              </p>
+            </motion.div>
+          ))}
+        </div>
 
-          <div className="space-y-3">
-            {activities.map((activity) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex justify-between items-center bg-gray-50 p-3 rounded-md"
-              >
-                <span>{activity.text}</span>
-                <span className="text-xs text-gray-500">{activity.time}</span>
-              </motion.div>
-            ))}
-          </div>
-        </Card>
+        {/* CHART + ACTIVITY SECTION */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* INTERACTIVE CHART */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white dark:bg-darkCard border border-gray-100 dark:border-gray-700 rounded-2xl p-6 shadow-md w-full"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-darkText">
+                {tabs.find((t) => t.id === activeTab)?.label} Trend
+              </h2>
+
+              {/* Tab Buttons */}
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
+                      activeTab === tab.id
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div className="h-64 sm:h-72 md:h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={dataSets[activeTab]}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e5e7eb"
+                    className="dark:stroke-gray-700"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: "#6b7280" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "#6b7280" }}
+                    tickLine={false}
+                    domain={[0, "dataMax + 10"]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      borderRadius: "10px",
+                      border: "none",
+                      color: "#fff",
+                    }}
+                    labelStyle={{ color: "#fff" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={chartColors[activeTab]}
+                    strokeWidth={3}
+                    dot={{ r: 5, fill: chartColors[activeTab] }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+
+          {/* RECENT ACTIVITIES */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="xl:col-span-2 bg-white dark:bg-darkCard border border-gray-100 dark:border-gray-700 rounded-2xl p-6 shadow-md w-full"
+          >
+            <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-darkText">
+              Recent Activities
+            </h2>
+            <ul className="space-y-4">
+              {[
+                "John Doe enrolled in Physics 101",
+                "New teacher added: Mrs. Grace",
+                "System update scheduled for 12 Oct",
+                "98% attendance recorded this week",
+              ].map((activity, i) => (
+                <li
+                  key={i}
+                  className="flex flex-wrap items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-2"
+                >
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">
+                    {activity}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 sm:mt-0">
+                    {i + 1}h ago
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
       </div>
     </DashboardLayout>
   );
 };
 
 export default SchoolDashboard;
-
