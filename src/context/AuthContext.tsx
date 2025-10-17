@@ -1,3 +1,5 @@
+
+
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,13 +15,15 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string, password: string) => void;
+  userRole: string | null;
+  login: (role: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
+  userRole: null,
   login: () => {},
   logout: () => {},
 });
@@ -27,51 +31,28 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // ✅ On app load: check if user exists in localStorage
+  // ✅ On app load: check if there's an active session
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const activeUser = localStorage.getItem("activeUser");
+    const role = localStorage.getItem("userRole");
+
+    if (activeUser && role) {
+      setUser(JSON.parse(activeUser));
+      setUserRole(role);
       setIsAuthenticated(true);
     }
   }, []);
 
-  // ✅ Login logic
-  const login = (email: string, password: string) => {
-    const storedUser = localStorage.getItem("user");
-
-    if (!storedUser) {
-      toast.error("No account found. Please sign up first.");
-      navigate("/signup");
-      return;
-    }
-
-    const userData = JSON.parse(storedUser);
-
-    if (userData.email === email && userData.password === password) {
-      setUser(userData);
+  // ✅ Called from Signin.tsx after successful login
+  const login = (role: string) => {
+    const activeUser = localStorage.getItem("activeUser");
+    if (activeUser) {
+      setUser(JSON.parse(activeUser));
+      setUserRole(role);
       setIsAuthenticated(true);
-      toast.success("Login successful!");
-
-      // redirect based on saved role
-      switch (userData.role) {
-        case "school":
-        case "admin":
-          navigate("/dashboard/school");
-          break;
-        case "teacher":
-          navigate("/dashboard/teacher");
-          break;
-        case "student":
-          navigate("/dashboard/student");
-          break;
-        default:
-          navigate("/signin");
-      }
-    } else {
-      toast.error("Invalid email or password.");
     }
   };
 
@@ -79,13 +60,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem("user");
+    setUserRole(null);
+    localStorage.removeItem("activeUser");
+    localStorage.removeItem("userRole");
+
     toast.success("Logged out successfully!");
     navigate("/signin");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

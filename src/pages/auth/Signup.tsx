@@ -24,61 +24,112 @@ const Signup = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
-      toast.error("All fields are required.");
-      return;
-    }
+  if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+    toast.error("All fields are required.");
+    return;
+  }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
 
-    if (form.password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
-      return;
-    }
+  if (form.password.length < 6) {
+    toast.error("Password must be at least 6 characters long.");
+    return;
+  }
 
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match.");
-      return;
-    }
+  if (form.password !== form.confirmPassword) {
+    toast.error("Passwords do not match.");
+    return;
+  }
 
-    // ✅ Get existing users
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+  // ✅ Get existing users from localStorage
+  const users = JSON.parse(localStorage.getItem("users") || "[]");
 
-    // ✅ Check if email already exists
-    const existingUser = users.find((u: any) => u.email === form.email);
-    if (existingUser) {
-      toast.error("An account with this email already exists.");
-      return;
-    }
+  // ✅ Check if email already exists
+  const existingUser = users.find((u: any) => u.email === form.email);
+  if (existingUser) {
+    toast.error("An account with this email already exists.");
+    return;
+  }
 
-    // ✅ Save new user with all details (including password & role)
-    const newUser = {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-    };
-    users.push(newUser);
-localStorage.setItem(
-  "user",
-  JSON.stringify({
+  // ✅ Create new user
+  const newUser = {
     name: form.name,
     email: form.email,
-    password: form.password, // ✅ added
+    password: form.password,
     role: form.role,
-  })
-);
-
-
-    toast.success("Account created successfully! Redirecting to login...");
-    setTimeout(() => navigate("/signin"), 1500);
   };
+
+  // ✅ Save updated users array
+  users.push(newUser);
+  localStorage.setItem("users", JSON.stringify(users));
+
+  toast.success("Account created successfully! Redirecting to login...");
+  setTimeout(() => navigate("/signin"), 1500);
+};
+
+
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+//       toast.error("All fields are required.");
+//       return;
+//     }
+
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(form.email)) {
+//       toast.error("Please enter a valid email address.");
+//       return;
+//     }
+
+//     if (form.password.length < 6) {
+//       toast.error("Password must be at least 6 characters long.");
+//       return;
+//     }
+
+//     if (form.password !== form.confirmPassword) {
+//       toast.error("Passwords do not match.");
+//       return;
+//     }
+
+//     // ✅ Get existing users
+//     const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+//     // ✅ Check if email already exists
+//     const existingUser = users.find((u: any) => u.email === form.email);
+//     if (existingUser) {
+//       toast.error("An account with this email already exists.");
+//       return;
+//     }
+
+//     // ✅ Save new user with all details (including password & role)
+//     const newUser = {
+//       name: form.name,
+//       email: form.email,
+//       password: form.password,
+//       role: form.role,
+//     };
+//     users.push(newUser);
+// localStorage.setItem(
+//   "user",
+//   JSON.stringify({
+//     name: form.name,
+//     email: form.email,
+//     password: form.password, // ✅ added
+//     role: form.role,
+//   })
+// );
+
+
+//     toast.success("Account created successfully! Redirecting to login...");
+//     setTimeout(() => navigate("/signin"), 1500);
+//   };
 
   const container: Variants = {
     hidden: { opacity: 0 },

@@ -24,50 +24,101 @@ const Signin = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.email || !form.password) {
-      toast.error("Please enter both email and password.");
-      return;
+  if (!form.email || !form.password) {
+    toast.error("Please enter both email and password.");
+    return;
+  }
+
+  // ✅ Get all users from localStorage
+  const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+  // ✅ Find the user by email
+  const user = users.find((u: any) => u.email === form.email);
+
+  if (!user) {
+    toast.error("No account found with this email. Please sign up first.");
+    return;
+  }
+
+  // ✅ Check password
+  if (user.password !== form.password) {
+    toast.error("Invalid password.");
+    return;
+  }
+
+  toast.success(`You are successfully logged in as ${user.role}! 🎉`);
+  setLoading(true);
+
+  // ✅ Save role + active user session
+  localStorage.setItem("userRole", user.role);
+  localStorage.setItem("activeUser", JSON.stringify(user));
+
+  // ✅ Update AuthContext
+  await login(user.role);
+
+  // ✅ Redirect based on role
+  setTimeout(() => {
+    if (user.role === "school" || user.role === "admin") {
+      navigate("/dashboard/school");
+    } else if (user.role === "teacher") {
+      navigate("/dashboard/teacher");
+    } else if (user.role === "student") {
+      navigate("/dashboard/student");
+    } else {
+      navigate("/");
     }
+    setLoading(false);
+  }, 800);
+};
 
-    // ✅ Get user from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      toast.error("No account found. Please sign up first.");
-      return;
-    }
 
-    const user = JSON.parse(storedUser);
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    // ✅ Check email and password
-    if (user.email !== form.email || user.password !== form.password) {
-      toast.error("Invalid email or password.");
-      return;
-    }
+  //   if (!form.email || !form.password) {
+  //     toast.error("Please enter both email and password.");
+  //     return;
+  //   }
 
-    toast.success("Login successful!");
-    setLoading(true);
+  //   // ✅ Get user from localStorage
+  //   const storedUser = localStorage.getItem("user");
+  //   if (!storedUser) {
+  //     toast.error("No account found. Please sign up first.");
+  //     return;
+  //   }
 
-    // ✅ Save role in localStorage for dashboard redirect
-    localStorage.setItem("role", user.role);
+  //   const user = JSON.parse(storedUser);
 
-    // ✅ Update AuthContext
-    await login(user.role);
+  //   // ✅ Check email and password
+  //   if (user.email !== form.email || user.password !== form.password) {
+  //     toast.error("Invalid email or password.");
+  //     return;
+  //   }
 
-    setTimeout(() => {
-      if (user.role === "school" || user.role === "admin") {
-        navigate("/dashboard/school");
-      } else if (user.role === "teacher") {
-        navigate("/dashboard/teacher");
-      } else if (user.role === "student") {
-        navigate("/dashboard/student");
-      } else {
-        navigate("/");
-      }
-      setLoading(false);
-    }, 500);
-  };
+  //   toast.success("Login successful!");
+  //   setLoading(true);
+
+  //   // ✅ Save role in localStorage for dashboard redirect
+  //   localStorage.setItem("role", user.role);
+
+  //   // ✅ Update AuthContext
+  //   await login(user.role);
+
+  //   setTimeout(() => {
+  //     if (user.role === "school" || user.role === "admin") {
+  //       navigate("/dashboard/school");
+  //     } else if (user.role === "teacher") {
+  //       navigate("/dashboard/teacher");
+  //     } else if (user.role === "student") {
+  //       navigate("/dashboard/student");
+  //     } else {
+  //       navigate("/");
+  //     }
+  //     setLoading(false);
+  //   }, 500);
+  // };
 
   const Header = () => (
     <header className="w-full py-4 px-6 flex items-center justify-between bg-background border-b border-border shadow-sm">

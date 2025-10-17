@@ -1,3 +1,5 @@
+
+
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -7,18 +9,21 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, userRole } = useAuth();
   const location = useLocation();
 
-  // ⛔ If not logged in, send to signin page
+  // ✅ Get role (context or localStorage fallback)
+  const role = userRole || user?.role || localStorage.getItem("userRole");
+
+  // ⛔ Not logged in — redirect to signin
   if (!isAuthenticated) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
   // 🧩 Role-based access control
-  if (allowedRoles && !allowedRoles.includes(user?.role || "")) {
-    // redirect them to their correct dashboard
-    switch (user?.role) {
+  if (allowedRoles && !allowedRoles.includes(role || "")) {
+    // redirect to correct dashboard based on user's role
+    switch (role) {
       case "school":
       case "admin":
         return <Navigate to="/dashboard/school" replace />;
@@ -31,7 +36,7 @@ const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
     }
   }
 
-  // ✅ User is authenticated and authorized
+  // ✅ Authorized — allow access
   return <>{children}</>;
 };
 
